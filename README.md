@@ -28,7 +28,7 @@ Pré-requisitos: `npx`, `python3`, CLI `paseo` (onboarded) e `claude` (Claude Co
 
 1. `~/.paseo/config.json` — habilita as Paseo tools via MCP (merge; preserva o resto do config)
 2. `~/.paseo/orchestration-preferences.json` — agents globais: **Dev** (`impl`, claude/sonnet) e **QA** (`audit`, claude/opus)
-3. 17 skills do registry (`npx skills add -g`): Go (samber ×4), React/Next/TS (vercel, wshobson, clerk), shadcn, Tailwind, Playwright, Postgres, Docker, Terraform e arquitetura (Matt Pocock + wshobson)
+3. 22 skills do registry (`npx skills add -g`): orquestração Paseo (×5), Go (samber ×4), React/Next/TS (vercel, wshobson, clerk), shadcn, Tailwind, Playwright, Postgres, Docker, Terraform e arquitetura (Matt Pocock + wshobson)
 4. 11 skills locais do bundle, symlinkadas em `~/.claude/skills`
 
 Loop Dev/QA em qualquer repo: skill `dev-qa-loop` (worker implementa, verifier

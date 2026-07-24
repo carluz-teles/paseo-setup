@@ -63,8 +63,10 @@ cat > "$PASEO_HOME/orchestration-preferences.json" <<'JSON'
 JSON
 echo "    ok"
 
-echo "==> 3/4 Instalando 17 skills do registry (global)"
+echo "==> 3/4 Instalando 22 skills do registry (global)"
 cd "$HOME"
+npx -y skills add getpaseo/paseo -g -y -a '*' \
+  -s paseo -s paseo-advisor -s paseo-committee -s paseo-handoff -s paseo-loop
 npx -y skills add samber/cc-skills-golang -g -y -a '*' \
   -s golang-code-style -s golang-error-handling -s golang-testing -s golang-design-patterns
 npx -y skills add vercel-labs/agent-skills -g -y -a '*' -s vercel-react-best-practices
@@ -97,5 +99,5 @@ echo ""
 echo "==> Concluido. Passos finais (manuais):"
 echo "    1. Reinicie o daemon para aplicar o config: 'paseo restart'"
 echo "       (ATENCAO: mata agentes em execucao neste host — confirme antes)"
-echo "    2. Verifique: 'paseo status' e 'ls ~/.agents/skills | wc -l' (esperado: 28+)"
+echo "    2. Verifique: 'paseo status' e 'ls ~/.agents/skills | wc -l' (esperado: 33)"
 echo "    3. Atualizacoes futuras das skills do registry: 'npx skills update -g'"
