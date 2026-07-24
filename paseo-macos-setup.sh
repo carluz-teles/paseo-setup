@@ -52,15 +52,17 @@ cat > "$PASEO_HOME/orchestration-preferences.json" <<'JSON'
     "ui": "claude/sonnet",
     "research": "claude/sonnet",
     "planning": "claude/opus",
-    "audit": "claude/opus"
+    "audit": "claude/opus",
+    "review": "claude/opus"
   },
   "preferences": [
     "Dev agent (impl/worker role): implement in small verifiable increments. Before finishing an iteration, run the project's own checks (livecart-be: 'go build ./...' and 'go test ./...' from the repo root; livecart-fe: 'pnpm run lint' and 'pnpm run build'). State clearly what changed and what is still pending.",
-    "QA agent (audit/verifier role): verify facts only, never fix code. Run the checks, cite the exact commands and their output, inspect the changed files for coherence with the task, and return done=true only when all acceptance criteria are objectively met.",
+    "QA agent (audit/verifier role): pure QA — verifies exclusively through tests and objective checks: unit tests, integration tests, and e2e via Playwright when the repo has it configured. Runs the checks, cites the exact commands and their output, never fixes code, and does NOT review code style or architecture (that is the Code Reviewer agent's job). Returns done=true only when every acceptance criterion is covered by a passing test.",
     "Dev and QA run as a worker/verifier pair via 'paseo loop run': dev on claude/sonnet, QA on claude/opus. Only Claude is installed as a provider on this machine — do not select codex/copilot/opencode/pi unless the user says they installed them.",
     "TDD policy (Dev agent): for any behavior change (feature or bugfix), write the test that captures the acceptance criterion FIRST, run it to confirm it fails, then implement until it passes. Refactor-only, docs, and config tasks are exempt.",
     "TDD enforcement (QA agent): for feature/bugfix tasks, return done=false if no new or updated test covers the acceptance criteria — pre-existing tests passing is not sufficient. Cite the new/changed test names in the verdict.",
-    "PM agent (planning role): analyzes tickets/tasks from a product perspective BEFORE implementation — user value, affected user flows, edge cases, product risks, open questions (only those whose answer changes scope, max 5, prioritized), and measurable acceptance criteria. Read-only: never modifies files. Its acceptance criteria become the Dev agent's TDD tests and the QA agent's verification checklist."
+    "PM agent (planning role): analyzes tickets/tasks from a product perspective BEFORE implementation — user value, affected user flows, edge cases, product risks, open questions (only those whose answer changes scope, max 5, prioritized), and measurable acceptance criteria. Read-only: never modifies files. Its acceptance criteria become the Dev agent's TDD tests and the QA agent's verification checklist.",
+    "Code Reviewer agent (review role): runs AFTER the dev-qa loop passes, in review rounds against the Dev agent. Reviews the diff for correctness bugs, security issues, project conventions, idiomatic patterns (use the installed language/framework skills as the ruler), and unjustified complexity. BLOCKING findings go into CODE_REVIEW.md at the repo root for the Dev to address and force another round; style suggestions are ADVISORY — reported in the verdict without blocking. Never fixes code itself. Approves only when zero blocking findings remain, then deletes CODE_REVIEW.md."
   ]
 }
 JSON
@@ -87,12 +89,12 @@ echo "==> 4/4 Skills locais (pm-plan, dev-qa-loop + UX/acessibilidade do livecar
 mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills"
 if [ -f "$BUNDLE" ]; then
   tar -xzf "$BUNDLE" -C "$HOME/.agents/skills"
-  for d in pm-plan dev-qa-loop accesslint-contrast-checker accesslint-link-purpose accesslint-refactor \
+  for d in pm-plan dev-qa-loop code-review-loop accesslint-contrast-checker accesslint-link-purpose accesslint-refactor \
            accesslint-use-of-color bencium-controlled-ux-designer bencium-innovative-ux-designer \
            composition-patterns frontend-design ui-ux-pro-max web-design-guidelines; do
     ln -sfn "../../.agents/skills/$d" "$HOME/.claude/skills/$d"
   done
-  echo "    ok: 12 skills extraidas e symlinkadas"
+  echo "    ok: 13 skills extraidas e symlinkadas"
 else
   echo "    AVISO: $BUNDLE nao encontrado — pulei as 11 skills locais."
   echo "    Copie o tarball para o mesmo diretorio do script e rode de novo (etapas anteriores sao idempotentes)."
@@ -102,5 +104,5 @@ echo ""
 echo "==> Concluido. Passos finais (manuais):"
 echo "    1. Reinicie o daemon para aplicar o config: 'paseo restart'"
 echo "       (ATENCAO: mata agentes em execucao neste host — confirme antes)"
-echo "    2. Verifique: 'paseo status' e 'ls ~/.agents/skills | wc -l' (esperado: 34)"
+echo "    2. Verifique: 'paseo status' e 'ls ~/.agents/skills | wc -l' (esperado: 35)"
 echo "    3. Atualizacoes futuras das skills do registry: 'npx skills update -g'"
