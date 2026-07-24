@@ -57,7 +57,9 @@ cat > "$PASEO_HOME/orchestration-preferences.json" <<'JSON'
   "preferences": [
     "Dev agent (impl/worker role): implement in small verifiable increments. Before finishing an iteration, run the project's own checks (livecart-be: 'go build ./...' and 'go test ./...' from the repo root; livecart-fe: 'pnpm run lint' and 'pnpm run build'). State clearly what changed and what is still pending.",
     "QA agent (audit/verifier role): verify facts only, never fix code. Run the checks, cite the exact commands and their output, inspect the changed files for coherence with the task, and return done=true only when all acceptance criteria are objectively met.",
-    "Dev and QA run as a worker/verifier pair via 'paseo loop run': dev on claude/sonnet, QA on claude/opus. Only Claude is installed as a provider on this machine — do not select codex/copilot/opencode/pi unless the user says they installed them."
+    "Dev and QA run as a worker/verifier pair via 'paseo loop run': dev on claude/sonnet, QA on claude/opus. Only Claude is installed as a provider on this machine — do not select codex/copilot/opencode/pi unless the user says they installed them.",
+    "TDD policy (Dev agent): for any behavior change (feature or bugfix), write the test that captures the acceptance criterion FIRST, run it to confirm it fails, then implement until it passes. Refactor-only, docs, and config tasks are exempt.",
+    "TDD enforcement (QA agent): for feature/bugfix tasks, return done=false if no new or updated test covers the acceptance criteria — pre-existing tests passing is not sufficient. Cite the new/changed test names in the verdict."
   ]
 }
 JSON
