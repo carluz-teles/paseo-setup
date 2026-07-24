@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Replica no macOS a configuracao do Paseo feita no WSL (2026-07-24):
 #   1. config.json         -> habilita MCP tools (merge, preserva o resto)
-#   2. orchestration-preferences.json -> agents globais Dev (impl) e QA (audit)
-#   3. 17 skills do registry (npx skills add -g)
-#   4. 11 skills locais via paseo-skills-bundle.tar.gz (mesmo diretorio do script)
+#   2. orchestration-preferences.json -> agents globais PM (planning), Dev (impl) e QA (audit)
+#   3. 22 skills do registry (npx skills add -g)
+#   4. 12 skills locais via paseo-skills-bundle.tar.gz (mesmo diretorio do script)
 #
 # Uso:  bash paseo-macos-setup.sh
 set -euo pipefail
@@ -59,7 +59,8 @@ cat > "$PASEO_HOME/orchestration-preferences.json" <<'JSON'
     "QA agent (audit/verifier role): verify facts only, never fix code. Run the checks, cite the exact commands and their output, inspect the changed files for coherence with the task, and return done=true only when all acceptance criteria are objectively met.",
     "Dev and QA run as a worker/verifier pair via 'paseo loop run': dev on claude/sonnet, QA on claude/opus. Only Claude is installed as a provider on this machine — do not select codex/copilot/opencode/pi unless the user says they installed them.",
     "TDD policy (Dev agent): for any behavior change (feature or bugfix), write the test that captures the acceptance criterion FIRST, run it to confirm it fails, then implement until it passes. Refactor-only, docs, and config tasks are exempt.",
-    "TDD enforcement (QA agent): for feature/bugfix tasks, return done=false if no new or updated test covers the acceptance criteria — pre-existing tests passing is not sufficient. Cite the new/changed test names in the verdict."
+    "TDD enforcement (QA agent): for feature/bugfix tasks, return done=false if no new or updated test covers the acceptance criteria — pre-existing tests passing is not sufficient. Cite the new/changed test names in the verdict.",
+    "PM agent (planning role): analyzes tickets/tasks from a product perspective BEFORE implementation — user value, affected user flows, edge cases, product risks, open questions (only those whose answer changes scope, max 5, prioritized), and measurable acceptance criteria. Read-only: never modifies files. Its acceptance criteria become the Dev agent's TDD tests and the QA agent's verification checklist."
   ]
 }
 JSON
@@ -82,16 +83,16 @@ npx -y skills add github/awesome-copilot -g -y -a '*' -s multi-stage-dockerfile
 npx -y skills add mattpocock/skills -g -y -a '*' -s improve-codebase-architecture
 npx -y skills add antonbabenko/terraform-skill -g -y -a '*' -s terraform-skill
 
-echo "==> 4/4 Skills locais (dev-qa-loop + UX/acessibilidade do livecart-fe)"
+echo "==> 4/4 Skills locais (pm-plan, dev-qa-loop + UX/acessibilidade do livecart-fe)"
 mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills"
 if [ -f "$BUNDLE" ]; then
   tar -xzf "$BUNDLE" -C "$HOME/.agents/skills"
-  for d in dev-qa-loop accesslint-contrast-checker accesslint-link-purpose accesslint-refactor \
+  for d in pm-plan dev-qa-loop accesslint-contrast-checker accesslint-link-purpose accesslint-refactor \
            accesslint-use-of-color bencium-controlled-ux-designer bencium-innovative-ux-designer \
            composition-patterns frontend-design ui-ux-pro-max web-design-guidelines; do
     ln -sfn "../../.agents/skills/$d" "$HOME/.claude/skills/$d"
   done
-  echo "    ok: 11 skills extraidas e symlinkadas"
+  echo "    ok: 12 skills extraidas e symlinkadas"
 else
   echo "    AVISO: $BUNDLE nao encontrado — pulei as 11 skills locais."
   echo "    Copie o tarball para o mesmo diretorio do script e rode de novo (etapas anteriores sao idempotentes)."
@@ -101,5 +102,5 @@ echo ""
 echo "==> Concluido. Passos finais (manuais):"
 echo "    1. Reinicie o daemon para aplicar o config: 'paseo restart'"
 echo "       (ATENCAO: mata agentes em execucao neste host — confirme antes)"
-echo "    2. Verifique: 'paseo status' e 'ls ~/.agents/skills | wc -l' (esperado: 33)"
+echo "    2. Verifique: 'paseo status' e 'ls ~/.agents/skills | wc -l' (esperado: 34)"
 echo "    3. Atualizacoes futuras das skills do registry: 'npx skills update -g'"
