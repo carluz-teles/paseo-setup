@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Replica no macOS a configuracao do Paseo feita no WSL (2026-07-24):
 #   1. config.json         -> habilita MCP tools (merge, preserva o resto)
-#   2. orchestration-preferences.json -> agents globais PM (planning), Dev (impl) e QA (audit)
+#   2. orchestration-preferences.json -> agents globais PM (planning), Dev (impl),
+#      QA (audit) e Code Reviewer (review)
 #   3. 22 skills do registry (npx skills add -g)
-#   4. 12 skills locais via paseo-skills-bundle.tar.gz (mesmo diretorio do script)
+#   4. 13 skills locais via paseo-skills-bundle.tar.gz (mesmo diretorio do script)
 #
 # Uso:  bash paseo-macos-setup.sh
 set -euo pipefail
@@ -40,7 +41,7 @@ with open(path, "w") as f:
 print(f"    ok: {path}")
 PY
 
-echo "==> 2/4 Gravando agents globais Dev/QA em $PASEO_HOME/orchestration-preferences.json"
+echo "==> 2/4 Gravando agents globais PM/Dev/QA/Reviewer em $PASEO_HOME/orchestration-preferences.json"
 if [ -f "$PASEO_HOME/orchestration-preferences.json" ]; then
   cp "$PASEO_HOME/orchestration-preferences.json" "$PASEO_HOME/orchestration-preferences.json.bak"
   echo "    (backup salvo em orchestration-preferences.json.bak)"
@@ -96,7 +97,7 @@ if [ -f "$BUNDLE" ]; then
   done
   echo "    ok: 13 skills extraidas e symlinkadas"
 else
-  echo "    AVISO: $BUNDLE nao encontrado — pulei as 11 skills locais."
+  echo "    AVISO: $BUNDLE nao encontrado — pulei as 13 skills locais."
   echo "    Copie o tarball para o mesmo diretorio do script e rode de novo (etapas anteriores sao idempotentes)."
 fi
 
